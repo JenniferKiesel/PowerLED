@@ -35,11 +35,19 @@ public class powerLEDService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
 
-        // TODO: ggf. gleich zu anfang prüfen ob connected
+        if (isConnected()) {
+            // register screen off receiver (led is on only when screen is off)
+            screenOffReceiver = new ScreenOffReceiver();
+            registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
 
-        // register connect receiver
-        powerConnectedReceiver = new PowerConnectedReceiver();
-        registerReceiver(powerConnectedReceiver, new IntentFilter(Intent.ACTION_POWER_CONNECTED));
+            // register disconnect receiver
+            powerDisconnectedReceiver = new PowerDisconnectedReceiver();
+            registerReceiver(powerDisconnectedReceiver, new IntentFilter(Intent.ACTION_POWER_DISCONNECTED));
+        } else {
+            // register connect receiver
+            powerConnectedReceiver = new PowerConnectedReceiver();
+            registerReceiver(powerConnectedReceiver, new IntentFilter(Intent.ACTION_POWER_CONNECTED));
+        }
 
         return START_STICKY;
     }
@@ -151,6 +159,13 @@ public class powerLEDService extends Service {
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
 
         return status == BatteryManager.BATTERY_STATUS_FULL;
+    }
+
+    private boolean isConnected() {
+        IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        Intent intent = registerReceiver(null, iFilter);
+
+        return intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0;
     }
 
     private void makeNotification(boolean orange) {
