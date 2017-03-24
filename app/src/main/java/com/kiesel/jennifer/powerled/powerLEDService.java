@@ -126,11 +126,11 @@ public class powerLEDService extends Service {
 
             Log.d(TAG, "Power changed - level " + level);
 
-            // wenn voll
+            // if battery is full
             if (full) {
                 makeNotification(false);
             }
-            // wenn leerer geworden (nur bei Umstieg von grün auf orange notwendig)
+            // if battery has less power (only necessary for changing led from green to orange)
             else {
                 makeNotification(true);
             }
@@ -218,7 +218,7 @@ public class powerLEDService extends Service {
 
         // fire notification
         notificationManager.notify(POWERLED_NOTIFICATION, nBuilder.build());
-        Log.d(TAG, "Notification fired - LED " + (orange ? "orange" : "grün"));
+        Log.d(TAG, "Notification fired - LED " + (orange ? "orange" : "green"));
     }
 
 
