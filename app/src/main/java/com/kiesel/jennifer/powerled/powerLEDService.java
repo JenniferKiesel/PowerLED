@@ -11,7 +11,6 @@ import android.graphics.Color;
 import android.os.BatteryManager;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.Display;
 
 public class powerLEDService extends Service {
 
@@ -24,7 +23,6 @@ public class powerLEDService extends Service {
     private BroadcastReceiver powerDisconnectedReceiver;
     private BroadcastReceiver powerChangedReceiver;
     private BroadcastReceiver screenOffReceiver;
-    private boolean ledIsOrange;
 
     @Override
     public void onCreate() {
@@ -38,7 +36,7 @@ public class powerLEDService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand");
 
-        // TODO: ggf. gleich zu anfang prüfen ob connected?
+        // TODO: ggf. gleich zu anfang prüfen ob connected
 
         // register connect receiver
         powerConnectedReceiver = new PowerConnectedReceiver();
@@ -67,9 +65,9 @@ public class powerLEDService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Connected", "onReceive\n");
+            Log.d(TAG, "Power connected");
 
-            // register screen off receiver (led blinks only when screen is off)
+            // register screen off receiver (led is on only when screen is off)
             screenOffReceiver = new ScreenOffReceiver();
             registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
 
@@ -91,7 +89,7 @@ public class powerLEDService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("Disconnected", "onReceive");
+            Log.d(TAG, "Power disconnected");
 
             // unregister power changed receiver
             unregisterReceiver(powerChangedReceiver);
@@ -115,15 +113,18 @@ public class powerLEDService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-            boolean full = status == BatteryManager.BATTERY_STATUS_FULL;
+            //TODO nur bei screen off machen?
+            int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            boolean full = level == 100;
 
-            // wenn voll (wird nur einmal geschickt)
+            Log.d(TAG, "Power changed - level " + level);
+
+            // wenn voll
             if (full) {
                 makeNotification(false);
             }
             // wenn leerer geworden (nur bei Umstieg von grün auf orange notwendig)
-            else if (!full && !ledIsOrange) {
+            else {
                 makeNotification(true);
             }
         }
@@ -136,8 +137,10 @@ public class powerLEDService extends Service {
         public void onReceive(Context context, Intent intent) {
             // make notification
             if (batteryFull()) {
+                Log.d(TAG, "Screen off - battery full");
                 makeNotification(false);
             } else {
+                Log.d(TAG, "Screen off - battery not full");
                 makeNotification(true);
             }
         }
@@ -161,15 +164,15 @@ public class powerLEDService extends Service {
         // color choose
         if (orange) {
             nBuilder.setLights(COLOR_ORANGE, 7000, 500);
-            ledIsOrange = true;
         } else {
             nBuilder.setLights(Color.GREEN, 60000, 500);
-            ledIsOrange = false;
         }
 
         // fire notification
         notificationManager.notify(POWERLED_NOTIFICATION, nBuilder.build());
+        Log.d(TAG, "Notification fired - LED " + (orange ? "orange" : "grün"));
     }
+
 
     @Override
     public IBinder onBind(Intent intent) {

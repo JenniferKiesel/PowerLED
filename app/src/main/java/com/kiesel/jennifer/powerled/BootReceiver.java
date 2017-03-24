@@ -11,11 +11,11 @@ public class BootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-//        Intent serviceIntent = new Intent(context, powerLEDService.class);
-//        context.startService(serviceIntent);
-        Intent activity = new Intent(context, MainActivity.class);
-        activity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        context.startActivity(activity);
-        // TODO: ggf. receiver unregistern
+        Intent serviceIntent = new Intent(context, powerLEDService.class);
+        context.startService(serviceIntent);
+//        Intent activity = new Intent(context, MainActivity.class);
+//        activity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        context.startActivity(activity);
+        context.unregisterReceiver(this);
     }
 }

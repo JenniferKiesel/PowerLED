@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
-
+/**
+ * Activity for testing only. Otherwise only the BootReceiver is relevant.
+ */
 public class MainActivity extends ActionBarActivity {
 
     @Override
