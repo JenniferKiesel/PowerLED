@@ -135,7 +135,7 @@ public class powerLEDService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             // make notification
-            if (batteryFull()) {
+            if (isBatteryFull()) {
                 Log.d(TAG, "Screen off - battery full");
                 makeNotification(false);
             } else {
@@ -145,10 +145,11 @@ public class powerLEDService extends Service {
         }
     }
 
-    private boolean batteryFull() {
+    private boolean isBatteryFull() {
         IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent intent = registerReceiver(null, iFilter);
         int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+
         return status == BatteryManager.BATTERY_STATUS_FULL;
     }
 
@@ -175,7 +176,6 @@ public class powerLEDService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
 }
