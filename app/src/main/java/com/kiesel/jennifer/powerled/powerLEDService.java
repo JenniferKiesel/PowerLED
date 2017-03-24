@@ -16,7 +16,6 @@ public class powerLEDService extends Service {
 
     private final String TAG = powerLEDService.class.getSimpleName();
     private final int POWERLED_NOTIFICATION = 1;
-    private final int COLOR_ORANGE = 0xFFFF5500;
 
     private NotificationManager notificationManager;
     private BroadcastReceiver powerConnectedReceiver;
@@ -163,7 +162,7 @@ public class powerLEDService extends Service {
 
         // color choose
         if (orange) {
-            nBuilder.setLights(COLOR_ORANGE, 7000, 500);
+            nBuilder.setLights(getResources().getColor(R.color.orange), 7000, 500);
         } else {
             nBuilder.setLights(Color.GREEN, 60000, 500);
         }
