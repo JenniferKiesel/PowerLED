@@ -22,6 +22,7 @@ public class powerLEDService extends Service {
     private BroadcastReceiver powerDisconnectedReceiver;
     private BroadcastReceiver powerChangedReceiver;
     private BroadcastReceiver screenOffReceiver;
+    private BroadcastReceiver screenOnReceiver;
 
     @Override
     public void onCreate() {
@@ -62,6 +63,7 @@ public class powerLEDService extends Service {
             unregisterReceiver(powerDisconnectedReceiver);
             unregisterReceiver(powerChangedReceiver);
             unregisterReceiver(screenOffReceiver);
+            unregisterReceiver(screenOnReceiver);
         } catch (Exception e) {}
 
         super.onDestroy();
@@ -77,10 +79,6 @@ public class powerLEDService extends Service {
             // register screen off receiver (led is on only when screen is off)
             screenOffReceiver = new ScreenOffReceiver();
             registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
-
-            // register power changed receiver
-            powerChangedReceiver = new PowerChangedReceiver();
-            registerReceiver(powerChangedReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
             // register disconnect receiver
             powerDisconnectedReceiver = new PowerDisconnectedReceiver();
@@ -104,6 +102,9 @@ public class powerLEDService extends Service {
             // unregister screen off receiver
             unregisterReceiver(screenOffReceiver);
 
+            // unregister screen on receiver
+            unregisterReceiver(screenOnReceiver);
+
             notificationManager.cancel(POWERLED_NOTIFICATION);
 
             // register connect receiver
@@ -120,7 +121,6 @@ public class powerLEDService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            //TODO nur bei screen off machen?
             int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             boolean full = level == 100;
 
@@ -137,7 +137,11 @@ public class powerLEDService extends Service {
         }
     }
 
-    /* SCREEN OFF */
+    /** SCREEN OFF
+     *
+     * I have to resend the notification every time the screen turns off again.
+     * This is because on turning on the screen the device turns off the LED.
+     */
     private class ScreenOffReceiver extends BroadcastReceiver {
 
         @Override
@@ -150,6 +154,35 @@ public class powerLEDService extends Service {
                 Log.d(TAG, "Screen off - battery not full");
                 makeNotification(true);
             }
+
+            // register power changed receiver
+            powerChangedReceiver = new PowerChangedReceiver();
+            registerReceiver(powerChangedReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+
+            // register screen on receiver
+            screenOnReceiver = new ScreenOnReceiver();
+            registerReceiver(screenOnReceiver, new IntentFilter(Intent.ACTION_SCREEN_ON));
+
+            // unregister myself
+            unregisterReceiver(this);
+        }
+    }
+
+    /* SCREEN ON */
+    private class ScreenOnReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Screen on");
+
+            unregisterReceiver(powerChangedReceiver);
+
+            // register screen off receiver (led is on only when screen is off)
+            screenOffReceiver = new ScreenOffReceiver();
+            registerReceiver(screenOffReceiver, new IntentFilter(Intent.ACTION_SCREEN_OFF));
+
+            // unregister myself
+            unregisterReceiver(this);
         }
     }
 
