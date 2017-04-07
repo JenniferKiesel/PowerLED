@@ -64,6 +64,7 @@ public class powerLEDService extends Service {
             unregisterReceiver(powerChangedReceiver);
             unregisterReceiver(screenOffReceiver);
             unregisterReceiver(screenOnReceiver);
+            notificationManager.cancel(POWERLED_NOTIFICATION);
         } catch (Exception e) {}
 
         super.onDestroy();
@@ -140,7 +141,7 @@ public class powerLEDService extends Service {
     /** SCREEN OFF
      *
      * I have to resend the notification every time the screen turns off again.
-     * This is because on turning on the screen the device turns off the LED.
+     * This is because when turning on the screen the device turns off the LED.
      */
     private class ScreenOffReceiver extends BroadcastReceiver {
 
