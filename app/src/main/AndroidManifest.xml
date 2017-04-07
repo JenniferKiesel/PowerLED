@@ -12,17 +12,15 @@
         android:theme="@style/AppTheme"
         android:enabled="true" >
 
+        <receiver android:name="com.kiesel.jennifer.powerled.BootReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
 
-
-        <!--<receiver android:name="com.kiesel.jennifer.powerled.BootReceiver"-->
-            <!--android:enabled="true"-->
-            <!--android:exported="true" >-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.BOOT_COMPLETED" />-->
-
-                <!--<category android:name="android.intent.category.DEFAULT" />-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
 
         <service android:name="com.kiesel.jennifer.powerled.powerLEDService" />
 
